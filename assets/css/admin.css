@@ -1,0 +1,185 @@
+/**
+ * WC Simple Filter — Admin CSS
+ *
+ * Minimálne štýly — rozširujú štandardné WP/WC admin UI.
+ */
+
+/* =========================================================
+   Wrapper
+   ========================================================= */
+
+.wc-sf-wrap {
+	margin-top: 20px;
+}
+
+.wc-sf-edit-wrap h2 {
+	margin-bottom: 16px;
+}
+
+/* =========================================================
+   Tabuľka filtrov (repeater)
+   ========================================================= */
+
+.wc-sf-filters-table {
+	margin-bottom: 24px;
+}
+
+.wc-sf-col-handle {
+	width: 30px;
+	text-align: center;
+}
+
+.wc-sf-drag-handle {
+	cursor: grab;
+	color: #999;
+	font-size: 18px;
+	vertical-align: middle;
+}
+
+.wc-sf-drag-handle:hover {
+	color: #555;
+}
+
+.wc-sf-filter-row.ui-sortable-helper {
+	background: #f0f7fb;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.wc-sf-filter-row.ui-sortable-placeholder {
+	visibility: visible !important;
+	background: #e8f4fd;
+	border: 1px dashed #72aee6;
+	height: 48px;
+}
+
+.wc-sf-actions {
+	white-space: nowrap;
+}
+
+.wc-sf-actions .button {
+	margin-right: 4px;
+}
+
+.wc-sf-actions .dashicons {
+	vertical-align: middle;
+	margin-top: -2px;
+}
+
+.wc-sf-no-filters td {
+	color: #777;
+	font-style: italic;
+}
+
+/* =========================================================
+   "Pridať nový filter" formulár
+   ========================================================= */
+
+.wc-sf-add-filter-wrap {
+	margin-top: 24px;
+	padding: 20px;
+	background: #fff;
+	border: 1px solid #ddd;
+}
+
+.wc-sf-add-filter-wrap h3 {
+	margin-top: 0;
+}
+
+/* =========================================================
+   Spinner a správy
+   ========================================================= */
+
+.wc-sf-spinner {
+	float: none;
+	vertical-align: middle;
+	margin: 0 6px;
+}
+
+.wc-sf-msg {
+	display: inline-block;
+	vertical-align: middle;
+	font-style: italic;
+	color: #555;
+}
+
+.wc-sf-msg.is-error {
+	color: #d63638;
+}
+
+.wc-sf-msg.is-success {
+	color: #00a32a;
+}
+
+/* =========================================================
+   Edit stránka
+   ========================================================= */
+
+.wc-sf-section {
+	margin-top: 24px;
+	padding: 20px;
+	background: #fff;
+	border: 1px solid #ddd;
+}
+
+.wc-sf-section h3 {
+	margin-top: 0;
+}
+
+/* =========================================================
+   Ranges tabuľka
+   ========================================================= */
+
+.wc-sf-ranges-table {
+	margin-bottom: 12px;
+}
+
+.wc-sf-ranges-table input[type="number"] {
+	width: 90px;
+}
+
+/* =========================================================
+   Values picker (checkboxy hodnôt)
+   ========================================================= */
+
+.wc-sf-values-picker {
+	max-height: 300px;
+	overflow-y: auto;
+	border: 1px solid #ddd;
+	padding: 10px;
+	background: #fafafa;
+	margin-bottom: 10px;
+}
+
+.wc-sf-values-picker label {
+	display: block;
+	margin-bottom: 6px;
+}
+
+/* =========================================================
+   Settings záložka
+   ========================================================= */
+
+.wc-sf-index-section {
+	margin-top: 24px;
+}
+
+.wc-sf-danger-text {
+	color: #d63638;
+}
+
+/* =========================================================
+   Help záložka
+   ========================================================= */
+
+.wc-sf-help-section {
+	margin-bottom: 28px;
+}
+
+.wc-sf-code {
+	background: #f6f7f7;
+	border: 1px solid #ddd;
+	border-left: 4px solid #72aee6;
+	padding: 10px 14px;
+	font-size: 13px;
+	overflow-x: auto;
+}

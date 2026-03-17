@@ -3,3 +3,7 @@ package.json
 bun.lock
 vendor
 .opencode
+*.png
+*.jpg
+*.jpeg
+log.txt

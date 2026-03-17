@@ -39,7 +39,7 @@ vendor/bin/phpcbf --standard=WordPress .
 vendor/bin/phpcs --standard=WordPress path/to/file.php
 ```
 
-### Testing (planned)
+### Testing
 ```bash
 # Run all tests
 vendor/bin/phpunit
