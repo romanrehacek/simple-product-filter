@@ -61,6 +61,7 @@ class Plugin {
 	private function load_dependencies(): void {
 		require_once WC_SF_PLUGIN_DIR . 'includes/class-filter-manager.php';
 		require_once WC_SF_PLUGIN_DIR . 'includes/class-index-manager.php';
+		require_once WC_SF_PLUGIN_DIR . 'includes/class-query-builder.php';
 		require_once WC_SF_PLUGIN_DIR . 'includes/class-ajax-handler.php';
 		require_once WC_SF_PLUGIN_DIR . 'includes/class-template.php';
 		require_once WC_SF_PLUGIN_DIR . 'includes/class-shortcode.php';

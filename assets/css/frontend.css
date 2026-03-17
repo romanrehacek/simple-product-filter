@@ -590,12 +590,11 @@
 }
 
 /* ==========================================================================
-   Active filter chips (Phase 2b placeholder)
+   Active filter chips (Phase 2b)
    ========================================================================== */
 
 /* Hide the active bar when no chips are active.
-   JS adds .wcsf__active-bar--visible when chips exist (Phase 2b).
-   Phase 2a demo: JS adds the class to show demo chips. */
+   JS adds .wcsf__active-bar--visible when chips exist. */
 .wcsf--horizontal .wcsf__active-bar {
 	display: none;
 }
@@ -624,6 +623,94 @@
 	line-height: 1;
 	color:       inherit;
 	font-size:   1rem;
+}
+
+.wcsf__active-chip-remove:hover {
+	opacity: 0.7;
+}
+
+/* ==========================================================================
+   Loading state (Phase 2b)
+   ========================================================================== */
+
+/* Products wrapper — dim + pointer-events off while loading. */
+.wcsf--loading ~ * ul.products,
+ul.products.wcsf--loading {
+	opacity:        0.5;
+	pointer-events: none;
+	transition:     opacity 0.15s ease;
+}
+
+/* Filter root loading indicator — subtle pulse on the form. */
+.wcsf.wcsf--loading .wcsf__form {
+	opacity:   0.6;
+	cursor:    wait;
+}
+
+/* Spinner shown on the products area via ::after on a sibling we can't easily
+   target without JS, so we use a data attribute approach via CSS variable trick.
+   The simplest solution: JS adds .wcsf--loading to ul.products directly. */
+ul.products.wcsf--loading {
+	position:       relative;
+	opacity:        0.5;
+	pointer-events: none;
+}
+
+ul.products.wcsf--loading::after {
+	content:       '';
+	position:      absolute;
+	top:           50%;
+	left:          50%;
+	transform:     translate(-50%, -50%);
+	width:         36px;
+	height:        36px;
+	border:        3px solid var(--wcsf-color-border);
+	border-top-color: var(--wcsf-color-accent);
+	border-radius: 50%;
+	animation:     wcsf-spin 0.7s linear infinite;
+}
+
+@keyframes wcsf-spin {
+	to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ==========================================================================
+   Submit button (submit mode)
+   ========================================================================== */
+
+.wcsf__submit-row {
+	padding:    var(--wcsf-gap) 0;
+	text-align: center;
+}
+
+.wcsf__submit-btn {
+	display:       inline-block;
+	padding:       0.5rem 1.5rem;
+	background:    var(--wcsf-color-accent);
+	border:        1px solid var(--wcsf-color-accent);
+	border-radius: var(--wcsf-radius);
+	font-size:     var(--wcsf-font-size);
+	font-weight:   600;
+	color:         #fff;
+	cursor:        pointer;
+	transition:    background var(--wcsf-transition), border-color var(--wcsf-transition);
+}
+
+.wcsf__submit-btn:hover,
+.wcsf__submit-btn:focus-visible {
+	background:   var(--wcsf-color-accent-hover);
+	border-color: var(--wcsf-color-accent-hover);
+	outline:      none;
+}
+
+/* ==========================================================================
+   Form wrapper (Phase 2b) — remove any default form styling
+   ========================================================================== */
+
+.wcsf__form {
+	margin:  0;
+	padding: 0;
+	border:  0;
 }
 
 /* ==========================================================================

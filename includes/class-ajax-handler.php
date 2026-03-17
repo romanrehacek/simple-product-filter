@@ -22,12 +22,17 @@ class Ajax_Handler {
 	 * @return void
 	 */
 	public function register_hooks(): void {
+		// Admin AJAX endpointy.
 		add_action( 'wp_ajax_wc_sf_save_filter',     [ $this, 'save_filter' ] );
 		add_action( 'wp_ajax_wc_sf_delete_filter',   [ $this, 'delete_filter' ] );
 		add_action( 'wp_ajax_wc_sf_reorder_filters', [ $this, 'reorder_filters' ] );
 		add_action( 'wp_ajax_wc_sf_reindex',         [ $this, 'reindex' ] );
 		add_action( 'wp_ajax_wc_sf_get_type_values', [ $this, 'get_type_values' ] );
 		add_action( 'wp_ajax_wc_sf_save_settings',   [ $this, 'save_settings' ] );
+
+		// Frontend AJAX endpoint — dostupný pre prihlásených aj neprihlásených.
+		add_action( 'wp_ajax_wc_sf_filter_products',        [ $this, 'filter_products' ] );
+		add_action( 'wp_ajax_nopriv_wc_sf_filter_products', [ $this, 'filter_products' ] );
 	}
 
 	/**
@@ -313,7 +318,315 @@ class Ajax_Handler {
 	}
 
 	/**
-	 * Extrahuje a sanitizuje dáta filtra z $_POST.
+	 * AJAX endpoint pre filtrovanie produktov (frontend).
+	 *
+	 * Dostupný pre prihlásených aj neprihlásených používateľov.
+	 * Overenie: frontend nonce (wc_sf_frontend_nonce).
+	 *
+	 * Vstup (POST):
+	 *  - nonce    string  Nonce overenia.
+	 *  - wcsf     array   Sanitizované filter parametre (rovnaká štruktúra ako $_GET['wcsf']).
+	 *  - paged    int     Číslo stránky (default 1).
+	 *  - orderby  string  WC orderby hodnota (nepovinné).
+	 *
+	 * Výstup (JSON success):
+	 *  - html         string  HTML product loop.
+	 *  - pagination   string  HTML stránkovania.
+	 *  - found_posts  int     Celkový počet nájdených produktov.
+	 *  - max_pages    int     Celkový počet stránok.
+	 *  - paged        int     Aktuálna stránka.
+	 *
+	 * @return void
+	 */
+	public function filter_products(): void {
+		// Overenie frontend nonce — CSRF ochrana.
+		// Kapacitná kontrola nie je potrebná (endpoint je verejný, len čítame).
+		check_ajax_referer( 'wc_sf_frontend_nonce', 'nonce' );
+
+		// --- Sanitizácia vstupu ---
+
+		// Filter parametre — rovnaký mechanizmus ako pre $_GET, ale z $_POST.
+		// Dočasne presunieme wcsf z POST do GET aby Query_Builder::get_active_params() fungoval,
+		// ale radšej použijeme priamy sanitizačný kód aby sme nemodifikovali globály.
+		$raw_wcsf = isset( $_POST['wcsf'] ) && is_array( $_POST['wcsf'] )
+			? (array) wp_unslash( $_POST['wcsf'] )
+			: [];
+
+		$params = $this->sanitize_frontend_params( $raw_wcsf );
+
+		// Stránkovanie.
+		$paged    = isset( $_POST['paged'] ) ? max( 1, absint( $_POST['paged'] ) ) : 1;
+
+		// Zoradenie — validujeme voči povoleným WC hodnotám.
+		$raw_orderby = isset( $_POST['orderby'] )
+			? sanitize_text_field( wp_unslash( (string) $_POST['orderby'] ) )
+			: '';
+		$orderby = in_array( $raw_orderby, Query_Builder::ALLOWED_ORDERBY, true )
+			? $raw_orderby
+			: get_option( 'woocommerce_default_catalog_orderby', 'menu_order' );
+
+		// --- Zostavenie WP_Query args ---
+
+		$filter_configs = Filter_Manager::get_all();
+		$filter_args    = Query_Builder::build( $params, $filter_configs );
+
+		/**
+		 * Počet produktov na stránku pre AJAX endpoint.
+		 * Default: WooCommerce nastavenie.
+		 *
+		 * @param int $per_page Počet produktov.
+		 */
+		$per_page = (int) apply_filters(
+			'wc_sf_ajax_per_page',
+			(int) get_option( 'posts_per_page', 12 )
+		);
+
+		$query_args = array_merge(
+			[
+				'post_type'           => 'product',
+				'post_status'         => 'publish',
+				'posts_per_page'      => $per_page,
+				'paged'               => $paged,
+				'ignore_sticky_posts' => true,
+			],
+			$filter_args
+		);
+
+		// Aplikuj WC zoradenie.
+		$query_args = $this->apply_orderby( $query_args, $orderby );
+
+		/**
+		 * Filter na úpravu WP_Query args pre AJAX filtrovanie.
+		 *
+		 * @param array<string, mixed> $query_args    Zostavené args.
+		 * @param array<string, mixed> $params        Aktívne filter parametre.
+		 * @param int                  $paged         Číslo stránky.
+		 * @param string               $orderby       Zoradenie.
+		 */
+		$query_args = (array) apply_filters( 'wc_sf_ajax_query_args', $query_args, $params, $paged, $orderby );
+
+		// --- Spustenie query a render ---
+
+		$query = new \WP_Query( $query_args );
+
+		// Render product loop HTML.
+		ob_start();
+
+		if ( $query->have_posts() ) {
+			wc_set_loop_prop( 'current_page', $paged );
+			wc_set_loop_prop( 'total_pages', $query->max_num_pages );
+			wc_set_loop_prop( 'is_shortcode', false );
+
+			woocommerce_product_loop_start();
+
+			while ( $query->have_posts() ) {
+				$query->the_post();
+				wc_get_template_part( 'content', 'product' );
+			}
+
+			woocommerce_product_loop_end();
+		} else {
+			// Prázdny stav — zabalíme do rovnakého wrappera ako loop-start.php,
+			// aby JS mohol nájsť [data-wcsf-products] aj pri prázdnom výsledku.
+			echo '<div class="child-category__products" data-wcsf-products>';
+			wc_get_template( 'loop/no-products-found.php' );
+			echo '</div>';
+		}
+
+		$products_html = (string) ob_get_clean();
+		wp_reset_postdata();
+
+		// Render pagination HTML.
+		ob_start();
+
+		if ( $query->max_num_pages > 1 ) {
+			woocommerce_pagination();
+		}
+
+		$pagination_html = (string) ob_get_clean();
+
+		/**
+		 * Akcia po vykreslení produktov (napr. re-init WC JS hooky).
+		 *
+		 * @param \WP_Query            $query   WP_Query objekt.
+		 * @param array<string, mixed> $params  Aktívne filter parametre.
+		 */
+		do_action( 'wc_sf_after_products_render', $query, $params );
+
+		wp_send_json_success( [
+			'html'        => $products_html,
+			'pagination'  => $pagination_html,
+			'found_posts' => (int) $query->found_posts,
+			'max_pages'   => (int) $query->max_num_pages,
+			'paged'       => $paged,
+		] );
+	}
+
+	/**
+	 * Sanitizuje pole frontend filter parametrov (z AJAX POST).
+	 *
+	 * Replikuje logiku Query_Builder::get_active_params() ale číta z poľa
+	 * namiesto priamo z $_GET, aby sme nemodifikovali globálne superglobals.
+	 *
+	 * @param  array<mixed> $raw  Nesanitizovaný vstup (z wp_unslash()).
+	 * @return array<string, mixed>
+	 */
+	private function sanitize_frontend_params( array $raw ): array {
+		$params = [];
+
+		foreach ( $raw as $raw_key => $raw_value ) {
+			$key = sanitize_key( (string) $raw_key );
+
+			if ( empty( $key ) ) {
+				continue;
+			}
+
+			// Validácia kľúča.
+			if ( ! $this->is_valid_filter_key( $key ) ) {
+				continue;
+			}
+
+			// Slider — price min/max.
+			if ( 'price' === $key && is_array( $raw_value ) ) {
+				$min = isset( $raw_value['min'] ) && '' !== $raw_value['min']
+					? (float) $raw_value['min']
+					: null;
+				$max = isset( $raw_value['max'] ) && '' !== $raw_value['max']
+					? (float) $raw_value['max']
+					: null;
+
+				if ( null !== $min || null !== $max ) {
+					$params['price'] = array_filter(
+						[ 'min' => $min, 'max' => $max ],
+						static fn( $v ) => null !== $v
+					);
+				}
+				continue;
+			}
+
+			// Attribute/meta slider.
+			if (
+				is_array( $raw_value )
+				&& array_key_exists( 'min', $raw_value )
+				&& array_key_exists( 'max', $raw_value )
+				&& ( str_starts_with( $key, 'attribute_' ) || str_starts_with( $key, 'meta_' ) )
+			) {
+				$min = '' !== $raw_value['min'] ? (float) $raw_value['min'] : null;
+				$max = '' !== $raw_value['max'] ? (float) $raw_value['max'] : null;
+
+				if ( null !== $min || null !== $max ) {
+					$params[ $key ] = array_filter(
+						[ 'min' => $min, 'max' => $max ],
+						static fn( $v ) => null !== $v
+					);
+				}
+				continue;
+			}
+
+			// Skalárna hodnota.
+			if ( ! is_array( $raw_value ) ) {
+				$value = sanitize_text_field( (string) $raw_value );
+				if ( '' !== $value ) {
+					$params[ $key ] = $value;
+				}
+				continue;
+			}
+
+			// Pole hodnôt.
+			$sanitized = [];
+			foreach ( $raw_value as $v ) {
+				$s = sanitize_text_field( (string) $v );
+				if ( '' !== $s ) {
+					$sanitized[] = $s;
+				}
+			}
+
+			if ( ! empty( $sanitized ) ) {
+				$params[ $key ] = $sanitized;
+			}
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Validuje filter kľúč — rovnaká logika ako v Query_Builder.
+	 *
+	 * @param  string $key  Sanitizovaný kľúč.
+	 * @return bool
+	 */
+	private function is_valid_filter_key( string $key ): bool {
+		$static = [ 'brand', 'status', 'sale', 'price' ];
+
+		if ( in_array( $key, $static, true ) ) {
+			return true;
+		}
+
+		if ( str_starts_with( $key, 'attribute_' ) ) {
+			return strlen( $key ) > strlen( 'attribute_' );
+		}
+
+		if ( str_starts_with( $key, 'meta_' ) ) {
+			return strlen( $key ) > strlen( 'meta_' );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Aplikuje WooCommerce orderby na WP_Query args.
+	 *
+	 * @param  array<string, mixed> $args     WP_Query args.
+	 * @param  string               $orderby  WC orderby hodnota.
+	 * @return array<string, mixed>
+	 */
+	private function apply_orderby( array $args, string $orderby ): array {
+		switch ( $orderby ) {
+			case 'date':
+				$args['orderby'] = 'date';
+				$args['order']   = 'DESC';
+				break;
+
+			case 'price':
+				$args['orderby']  = 'meta_value_num'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_orderby
+				$args['order']    = 'ASC';
+				$args['meta_key'] = '_price'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				break;
+
+			case 'price-desc':
+				$args['orderby']  = 'meta_value_num'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_orderby
+				$args['order']    = 'DESC';
+				$args['meta_key'] = '_price'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				break;
+
+			case 'popularity':
+				$args['orderby']  = 'meta_value_num'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_orderby
+				$args['order']    = 'DESC';
+				$args['meta_key'] = 'total_sales'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				break;
+
+			case 'rating':
+				$args['orderby']  = 'meta_value_num'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_orderby
+				$args['order']    = 'DESC';
+				$args['meta_key'] = '_wc_average_rating'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				break;
+
+			case 'title':
+				$args['orderby'] = 'title';
+				$args['order']   = 'ASC';
+				break;
+
+			case 'menu_order':
+			default:
+				$args['orderby'] = 'menu_order title';
+				$args['order']   = 'ASC';
+				break;
+		}
+
+		return $args;
+	}
+	/**
+	 * Extrahuje a sanitizuje dáta filtra z POST requestu.
 	 *
 	 * @return array<string, mixed>
 	 */

@@ -28,6 +28,137 @@ class Frontend {
 	 */
 	public function register_hooks(): void {
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
+		add_action( 'pre_get_posts',      [ $this, 'filter_main_query' ] );
+	}
+
+	/**
+	 * Aplikuje filter parametre na hlavný WooCommerce product query.
+	 *
+	 * Spustí sa iba keď:
+	 *  - nie sme v admin
+	 *  - je to hlavný query (nie vedľajší, napr. widgety)
+	 *  - je to WC product archive, shop stránka alebo product taxonomy
+	 *  - hook wc_sf_apply_query_filter vracia true
+	 *
+	 * Stránkovanie sa rieši výhradne v JS (reset paged=1 pri zmene filtrov).
+	 * PHP len číta $_GET['wcsf'] — ak parameter nie je v URL, query sa nezmení.
+	 *
+	 * @param  \WP_Query $query  Aktuálny WP_Query objekt (pass by reference).
+	 * @return void
+	 */
+	public function filter_main_query( \WP_Query $query ): void {
+		// Spustiť iba na fronte a na hlavnom query.
+		if ( is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+
+		// Spustiť iba na WC product archívoch / shop / product taxonomiách.
+		if ( ! $this->is_filterable_query( $query ) ) {
+			return;
+		}
+
+		/**
+		 * Filter umožňujúci vypnúť filtrovanie pre konkrétny query.
+		 *
+		 * @param bool      $apply  Aplikovať filtrovanie? Default true.
+		 * @param \WP_Query $query  Aktuálny WP_Query objekt.
+		 */
+		if ( ! (bool) apply_filters( 'wc_sf_apply_query_filter', true, $query ) ) {
+			return;
+		}
+
+		// Načítaj a sanitizuj parametre z URL.
+		$params = Query_Builder::get_active_params();
+
+		if ( empty( $params ) ) {
+			return;
+		}
+
+		// Načítaj konfigurácie filtrov pre správnu AND/OR logiku.
+		$filter_configs = Filter_Manager::get_all();
+
+		// Zostrojí WP_Query args fragment.
+		$extra = Query_Builder::build( $params, $filter_configs );
+
+		if ( empty( $extra ) ) {
+			return;
+		}
+
+		/**
+		 * Akcia pred aplikovaním filtrovacích podmienok na query.
+		 *
+		 * @param \WP_Query             $query  WP_Query objekt.
+		 * @param array<string, mixed>  $extra  Zostavené query args.
+		 * @param array<string, mixed>  $params Aktívne filter parametre.
+		 */
+		do_action( 'wc_sf_before_filter_query', $query, $extra, $params );
+
+		// --- tax_query ---
+		if ( ! empty( $extra['tax_query'] ) ) {
+			$existing = $query->get( 'tax_query' ) ?: [];
+			// Zachovaj existujúce podmienky (napr. WC category archive).
+			if ( ! empty( $existing ) ) {
+				$merged = [
+					'relation' => 'AND',
+					$existing,
+					$extra['tax_query'],
+				];
+			} else {
+				$merged = $extra['tax_query'];
+			}
+			$query->set( 'tax_query', $merged ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+		}
+
+		// --- meta_query ---
+		if ( ! empty( $extra['meta_query'] ) ) {
+			$existing = $query->get( 'meta_query' ) ?: [];
+			if ( ! empty( $existing ) ) {
+				$merged = [
+					'relation' => 'AND',
+					$existing,
+					$extra['meta_query'],
+				];
+			} else {
+				$merged = $extra['meta_query'];
+			}
+			$query->set( 'meta_query', $merged ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		}
+
+		// --- post__in (sale filter) ---
+		if ( isset( $extra['post__in'] ) ) {
+			$existing = $query->get( 'post__in' ) ?: [];
+			if ( ! empty( $existing ) ) {
+				// Prienik — obe podmienky musia byť splnené.
+				$intersected = array_intersect( $existing, $extra['post__in'] );
+				$query->set( 'post__in', ! empty( $intersected ) ? array_values( $intersected ) : [ 0 ] );
+			} else {
+				$query->set( 'post__in', $extra['post__in'] );
+			}
+		}
+	}
+
+	/**
+	 * Skontroluje, či aktuálny query je filtrovateľný WC product query.
+	 *
+	 * @param  \WP_Query $query  WP_Query objekt.
+	 * @return bool
+	 */
+	private function is_filterable_query( \WP_Query $query ): bool {
+		if ( function_exists( 'is_shop' ) && is_shop() ) {
+			return true;
+		}
+
+		if ( $query->is_post_type_archive( 'product' ) ) {
+			return true;
+		}
+
+		// Product taxonomies (kategória, tag, atribúty...).
+		$product_taxonomies = get_object_taxonomies( 'product' );
+		if ( ! empty( $product_taxonomies ) && $query->is_tax( $product_taxonomies ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

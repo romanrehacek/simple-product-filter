@@ -380,8 +380,44 @@ class Shortcode {
 
 		// Meta filter.
 		if ( str_starts_with( $filter_type, 'meta_' ) ) {
-			// Pre Fázu 2b (query), teraz vrátime prázdne — meta hodnoty nie sú ešte indexované.
-			return [];
+			$meta_key = substr( $filter_type, strlen( 'meta_' ) );
+			$meta_key = sanitize_key( $meta_key );
+
+			if ( empty( $meta_key ) ) {
+				return [];
+			}
+
+			global $wpdb;
+
+			// Načítaj unikátne hodnoty meta kľúča pre produkty.
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT DISTINCT pm.meta_value AS value
+					FROM {$wpdb->postmeta} pm
+					INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+					WHERE pm.meta_key = %s
+					AND pm.meta_value != ''
+					AND p.post_type = 'product'
+					AND p.post_status = 'publish'
+					ORDER BY pm.meta_value ASC",
+					$meta_key
+				),
+				ARRAY_A
+			);
+
+			if ( ! is_array( $rows ) || empty( $rows ) ) {
+				return [];
+			}
+
+			foreach ( $rows as $row ) {
+				$values[] = [
+					'type'  => 'meta',
+					'slug'  => sanitize_text_field( $row['value'] ),
+					'label' => sanitize_text_field( $row['value'] ),
+				];
+			}
+
+			return $values;
 		}
 
 		/**

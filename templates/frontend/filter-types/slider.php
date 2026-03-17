@@ -52,11 +52,11 @@ $step        = isset( $slider_data['step'] ) ? (float) $slider_data['step'] : 1;
 		<input type="hidden"
 			   name="wcsf[<?php echo esc_attr( $filter_type ); ?>][min]"
 			   class="wcsf__slider-input wcsf__slider-input--min"
-			   value="<?php echo esc_attr( $min ); ?>">
+			   value="">
 		<input type="hidden"
 			   name="wcsf[<?php echo esc_attr( $filter_type ); ?>][max]"
 			   class="wcsf__slider-input wcsf__slider-input--max"
-			   value="<?php echo esc_attr( $max ); ?>">
+			   value="">
 	</div>
 
 </div>

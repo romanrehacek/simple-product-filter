@@ -20,33 +20,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use WC_Simple_Filter\Shortcode;
 use WC_Simple_Filter\Template;
+
+$settings    = get_option( 'wc_sf_settings', [] );
+$filter_mode = $settings['filter_mode'] ?? 'ajax';
+$show_reset  = (bool) apply_filters( 'wc_sf_show_reset_button', $settings['show_reset_button'] ?? true );
+$reset_label = (string) apply_filters( 'wc_sf_reset_button_label', $settings['reset_button_text'] ?? __( 'Zrušiť filtre', 'wc-simple-filter' ) );
 ?>
-<div class="wcsf wcsf--<?php echo esc_attr( $layout ); ?>" data-layout="<?php echo esc_attr( $layout ); ?>">
+<div class="wcsf wcsf--<?php echo esc_attr( $layout ); ?>" data-layout="<?php echo esc_attr( $layout ); ?>" data-filter-mode="<?php echo esc_attr( $filter_mode ); ?>">
 
 	<?php if ( 'horizontal' === $layout ) : ?>
 		<?php Template::get_template( 'partials/filter-toggle-bar.php', compact( 'filters', 'layout', 'collapsible', 'collapsed' ) ); ?>
 	<?php endif; ?>
 
-	<div class="wcsf__filters" role="group" aria-label="<?php esc_attr_e( 'Filtre produktov', 'wc-simple-filter' ); ?>">
+	<form class="wcsf__form" method="get" action="<?php echo esc_url( get_pagenum_link( 1 ) ); ?>" novalidate>
 
-		<?php foreach ( $filters as $filter ) : ?>
-			<?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo Shortcode::render_filter_item( $filter, $layout, $collapsible, $collapsed );
-			?>
-		<?php endforeach; ?>
+		<?php
+		// Stránkovanie — reset na 1 pri každom odoslaní formulára.
+		// V AJAX a reload režime JS zabraňuje default submit a rieši to sám.
+		?>
+		<input type="hidden" name="paged" value="1">
 
-	</div>
+		<div class="wcsf__filters" role="group" aria-label="<?php esc_attr_e( 'Filtre produktov', 'wc-simple-filter' ); ?>">
+
+			<?php foreach ( $filters as $filter ) : ?>
+				<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo Shortcode::render_filter_item( $filter, $layout, $collapsible, $collapsed );
+				?>
+			<?php endforeach; ?>
+
+		</div>
+
+		<?php if ( 'submit' === $filter_mode ) : ?>
+			<div class="wcsf__submit-row">
+				<button type="submit" class="wcsf__submit-btn">
+					<?php esc_html_e( 'Použiť filtre', 'wc-simple-filter' ); ?>
+				</button>
+			</div>
+		<?php endif; ?>
+
+	</form>
 
 	<?php if ( 'horizontal' === $layout ) : ?>
 		<div class="wcsf__active-bar" aria-live="polite" aria-label="<?php esc_attr_e( 'Aktívne filtre', 'wc-simple-filter' ); ?>">
 			<div class="wcsf__active-bar-chips"></div>
-			<?php
-			$settings    = get_option( 'wc_sf_settings', [] );
-			$show_reset  = (bool) apply_filters( 'wc_sf_show_reset_button', $settings['show_reset_button'] ?? true );
-			$reset_label = (string) apply_filters( 'wc_sf_reset_button_label', $settings['reset_button_text'] ?? __( 'Zrušiť filtre', 'wc-simple-filter' ) );
-			if ( $show_reset ) :
-				?>
+			<?php if ( $show_reset ) : ?>
 				<button type="button" class="wcsf__reset-btn wcsf__reset-btn--inline">
 					<?php echo esc_html( $reset_label ); ?>
 				</button>
@@ -59,3 +77,4 @@ use WC_Simple_Filter\Template;
 	<?php endif; ?>
 
 </div>
+
