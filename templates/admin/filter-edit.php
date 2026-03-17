@@ -332,6 +332,12 @@ $back_url = Admin::tab_url();
 						data-filter-type="<?php echo esc_attr( $filter_type ); ?>">
 					<?php esc_html_e( 'Načítať dostupné hodnoty', 'wc-simple-filter' ); ?>
 				</button>
+				<button type="button" id="wc-sf-select-all-values" class="button" style="display:none;">
+					<?php esc_html_e( 'Vybrať všetky', 'wc-simple-filter' ); ?>
+				</button>
+				<button type="button" id="wc-sf-deselect-all-values" class="button" style="display:none;">
+					<?php esc_html_e( 'Zrušiť všetky', 'wc-simple-filter' ); ?>
+				</button>
 				<span class="wc-sf-spinner spinner"></span>
 			</p>
 

@@ -463,6 +463,8 @@
 		var filterType  = $btn.data( 'filter-type' );
 		var $spinner    = $btn.siblings( '.wc-sf-spinner' );
 		var $container  = $( '#wc-sf-values-list' );
+		var $selectAll  = $( '#wc-sf-select-all-values' );
+		var $deselectAll = $( '#wc-sf-deselect-all-values' );
 
 		toggleSpinner( $spinner, true );
 		$btn.prop( 'disabled', true );
@@ -494,6 +496,10 @@
 			html += '</div>';
 
 			$container.html( html );
+
+			// Zobraziť tlačidlá vybrať/zrušiť všetky.
+			$selectAll.show();
+			$deselectAll.show();
 		} )
 		.fail( function () {
 			// Ticho zlyhanie — hodnoty ostanú ako sú.
@@ -502,6 +508,16 @@
 			toggleSpinner( $spinner, false );
 			$btn.prop( 'disabled', false );
 		} );
+	} );
+
+	// Vybrať všetky hodnoty.
+	$( '#wc-sf-select-all-values' ).on( 'click', function () {
+		$( '#wc-sf-values-list input[name="config[include_values][]"]' ).prop( 'checked', true );
+	} );
+
+	// Zrušiť všetky hodnoty.
+	$( '#wc-sf-deselect-all-values' ).on( 'click', function () {
+		$( '#wc-sf-values-list input[name="config[include_values][]"]' ).prop( 'checked', false );
 	} );
 
 	/**
