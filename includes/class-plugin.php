@@ -62,11 +62,7 @@ class Plugin {
 		require_once WC_SF_PLUGIN_DIR . 'includes/class-filter-manager.php';
 		require_once WC_SF_PLUGIN_DIR . 'includes/class-index-manager.php';
 		require_once WC_SF_PLUGIN_DIR . 'includes/class-ajax-handler.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-admin.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-filters-tab.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-filter-edit.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-settings-tab.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-help-tab.php';
+		// Admin triedy sa načítavajú neskôr — WC_Settings_Page musí byť dostupná.
 	}
 
 	/**
@@ -78,18 +74,38 @@ class Plugin {
 		// i18n.
 		add_action( 'init', [ $this, 'load_textdomain' ] );
 
-		// Admin UI.
+		// AJAX hooky — musia byť registrované skoro (pred wp_ajax_*).
+		$ajax = new Ajax_Handler();
+		$ajax->register_hooks();
+
+		// Inkrementálny update indexu pri uložení produktu.
+		$index_manager = new Index_Manager();
+		$index_manager->register_hooks();
+
+		// Admin UI — registrujeme cez woocommerce_get_settings_pages filter.
+		// Tento filter sa spúšťa keď WC_Settings_Page je už dostupná.
 		if ( is_admin() ) {
-			$admin = new Admin\Admin();
-			$admin->register_hooks();
-
-			$ajax = new Ajax_Handler();
-			$ajax->register_hooks();
-
-			// Inkrementálny update indexu pri uložení produktu.
-			$index_manager = new Index_Manager();
-			$index_manager->register_hooks();
+			add_filter( 'woocommerce_get_settings_pages', [ $this, 'load_admin' ] );
 		}
+	}
+
+	/**
+	 * Načíta admin triedy a zaregistruje Admin hooks.
+	 * Volá sa cez woocommerce_get_settings_pages filter — WC_Settings_Page je v tom čase dostupná.
+	 *
+	 * @param array<\WC_Settings_Page> $settings Existujúce settings pages.
+	 * @return array<\WC_Settings_Page>
+	 */
+	public function load_admin( array $settings ): array {
+		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-admin.php';
+		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-filters-tab.php';
+		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-filter-edit.php';
+		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-settings-tab.php';
+		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-help-tab.php';
+
+		$settings[] = new Admin\Admin();
+
+		return $settings;
 	}
 
 	/**
