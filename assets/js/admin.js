@@ -412,10 +412,12 @@
 	} );
 
 	function updateEditSections( style ) {
-		var $slider  = $( '.wc-sf-section-slider' );
-		var $ranges  = $( '.wc-sf-section-ranges' );
-		var $values  = $( '.wc-sf-section-values' );
-		var $hideRow = $( '.wc-sf-row-hide-empty' );
+		var $slider      = $( '.wc-sf-section-slider' );
+		var $ranges      = $( '.wc-sf-section-ranges' );
+		var $values      = $( '.wc-sf-section-values' );
+		var $hideRow     = $( '.wc-sf-row-hide-empty' );
+		var currentType  = $( '#wc-sf-edit-form' ).data( 'filter-type' );
+		var isPrice      = 'price' === currentType;
 
 		$slider.hide();
 		$ranges.hide();
@@ -424,6 +426,10 @@
 			$slider.show();
 			$values.hide();
 			$hideRow.hide();
+		} else if ( isPrice ) {
+			// Price filter s checkbox/radio — zobraz ranges, skry values (neexistuje v DOM).
+			$ranges.show();
+			$hideRow.show();
 		} else {
 			$values.show();
 			$hideRow.show();

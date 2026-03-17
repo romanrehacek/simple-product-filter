@@ -1,6 +1,6 @@
 <?php
 /**
- * Integrácia do WooCommerce Settings — hlavná záložka a sub-tab navigácia.
+ * Integrácia do WooCommerce Settings — dedí WC_Settings_Page.
  *
  * @package WC_Simple_Filter
  */
@@ -16,43 +16,48 @@ use WC_Simple_Filter\Filter_Manager;
 /**
  * Trieda Admin.
  *
- * Zodpovedá za:
- * - pridanie záložky do WC Settings
- * - renderovanie správnej sekcie podľa URL parametra ?section=
- * - enqueue admin assets
+ * Dedí WC_Settings_Page — využíva natívny WC systém sekcií
+ * (subsubsub zoznam, $current_section, woocommerce_sections_ hook).
  */
-class Admin {
+class Admin extends \WC_Settings_Page {
 
 	/**
-	 * Slug hlavnej WC Settings záložky.
+	 * Konštruktor — nastaví id/label a zaregistruje hooky cez WC_Settings_Page.
 	 */
-	const TAB_SLUG = 'wc_sf';
+	public function __construct() {
+		$this->id    = 'wc_sf';
+		$this->label = __( 'Filtre', 'wc-simple-filter' );
 
-	/**
-	 * Zaregistruje WordPress hooky.
-	 *
-	 * @return void
-	 */
-	public function register_hooks(): void {
-		// Pridanie záložky do WC Settings.
-		add_filter( 'woocommerce_settings_tabs_array', [ $this, 'add_settings_tab' ], 50 );
+		// Rodičovský konštruktor registruje:
+		// - woocommerce_settings_tabs_array (pridanie záložky)
+		// - woocommerce_sections_{id}       (renderovanie subsubsub)
+		// - woocommerce_settings_{id}       (renderovanie obsahu)
+		// - woocommerce_settings_save_{id}  (uloženie)
+		parent::__construct();
 
-		// Render obsahu záložky.
-		add_action( 'woocommerce_settings_' . self::TAB_SLUG, [ $this, 'render_tab' ] );
-
-		// Enqueue admin assets.
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 	}
 
 	/**
-	 * Pridá záložku „Filtre" do WC Settings.
+	 * Registruje hooky. Volá sa z Plugin::register_hooks().
 	 *
-	 * @param array<string, string> $tabs Existujúce záložky.
+	 * @return void
+	 */
+	public function register_hooks(): void {
+		// Konštruktor sa postará o WC hooky.
+	}
+
+	/**
+	 * Vráti sekcie (sub-taby) pre tento settings page.
+	 *
 	 * @return array<string, string>
 	 */
-	public function add_settings_tab( array $tabs ): array {
-		$tabs[ self::TAB_SLUG ] = __( 'Filtre', 'wc-simple-filter' );
-		return $tabs;
+	protected function get_own_sections(): array {
+		return [
+			''         => __( 'Filtre', 'wc-simple-filter' ),
+			'settings' => __( 'Nastavenia', 'wc-simple-filter' ),
+			'help'     => __( 'Nápoveda', 'wc-simple-filter' ),
+		];
 	}
 
 	/**
@@ -60,25 +65,23 @@ class Admin {
 	 *
 	 * @return void
 	 */
-	public function render_tab(): void {
-		$section = $this->get_current_section();
+	public function output(): void {
+		global $current_section;
 
-		// Sub-tab navigácia.
-		$this->render_subnav( $section );
+		// Sekcia 'edit' je špeciálna — editácia konkrétneho filtra.
+		if ( 'edit' === $current_section ) {
+			$filter_id = isset( $_GET['filter_id'] ) ? absint( $_GET['filter_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			( new Filter_Edit() )->render( $filter_id );
+			return;
+		}
 
-		// Renderovanie správnej sekcie.
-		switch ( $section ) {
+		switch ( $current_section ) {
 			case 'settings':
 				( new Settings_Tab() )->render();
 				break;
 
 			case 'help':
 				( new Help_Tab() )->render();
-				break;
-
-			case 'edit':
-				$filter_id = isset( $_GET['filter_id'] ) ? absint( $_GET['filter_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				( new Filter_Edit() )->render( $filter_id );
 				break;
 
 			default:
@@ -88,53 +91,27 @@ class Admin {
 	}
 
 	/**
-	 * Renderuje sub-tab navigáciu (skryje pri editácii filtra).
+	 * Renderuje subsubsub sekcie.
+	 * Pri sekcii 'edit' navigáciu skryjeme — má vlastný back link.
 	 *
-	 * @param string $active_section Aktívna sekcia.
 	 * @return void
 	 */
-	private function render_subnav( string $active_section ): void {
-		// Pri editácii konkrétneho filtra skryjeme navigáciu — má vlastný back link.
-		if ( 'edit' === $active_section ) {
+	public function output_sections(): void {
+		global $current_section;
+
+		if ( 'edit' === $current_section ) {
 			return;
 		}
 
-		$tabs = [
-			''         => __( 'Filtre', 'wc-simple-filter' ),
-			'settings' => __( 'Nastavenia', 'wc-simple-filter' ),
-			'help'     => __( 'Nápoveda', 'wc-simple-filter' ),
-		];
-
-		$base_url = admin_url( 'admin.php?page=wc-settings&tab=' . self::TAB_SLUG );
-
-		echo '<nav class="nav-tab-wrapper woo-nav-tab-wrapper">';
-
-		foreach ( $tabs as $slug => $label ) {
-			$url        = $slug ? $base_url . '&section=' . $slug : $base_url;
-			$is_active  = ( '' === $slug && '' === $active_section )
-				|| ( $slug && $slug === $active_section );
-			$class      = 'nav-tab' . ( $is_active ? ' nav-tab-active' : '' );
-
-			printf(
-				'<a href="%s" class="%s">%s</a>',
-				esc_url( $url ),
-				esc_attr( $class ),
-				esc_html( $label )
-			);
-		}
-
-		echo '</nav>';
+		parent::output_sections();
 	}
 
 	/**
-	 * Vráti aktívnu sekciu z URL.
+	 * Uloženie — nastavenia sa ukladajú cez AJAX (wc_sf_save_settings).
 	 *
-	 * @return string
+	 * @return void
 	 */
-	public static function get_current_section(): string {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return isset( $_GET['section'] ) ? sanitize_key( $_GET['section'] ) : '';
-	}
+	public function save(): void {}
 
 	/**
 	 * Vráti base URL pre záložku.
@@ -143,7 +120,7 @@ class Admin {
 	 * @return string
 	 */
 	public static function tab_url( string $section = '' ): string {
-		$url = admin_url( 'admin.php?page=wc-settings&tab=' . self::TAB_SLUG );
+		$url = admin_url( 'admin.php?page=wc-settings&tab=wc_sf' );
 
 		if ( $section ) {
 			$url .= '&section=' . rawurlencode( $section );
@@ -160,8 +137,7 @@ class Admin {
 	 */
 	public static function filter_edit_url( int $filter_id ): string {
 		return admin_url(
-			'admin.php?page=wc-settings&tab=' . self::TAB_SLUG
-			. '&section=edit&filter_id=' . $filter_id
+			'admin.php?page=wc-settings&tab=wc_sf&section=edit&filter_id=' . $filter_id
 		);
 	}
 
@@ -179,7 +155,7 @@ class Admin {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '';
 
-		if ( self::TAB_SLUG !== $tab ) {
+		if ( 'wc_sf' !== $tab ) {
 			return;
 		}
 
@@ -199,17 +175,17 @@ class Admin {
 		);
 
 		wp_localize_script( 'wc-sf-admin', 'wcSfAdmin', [
-			'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
-			'nonce'     => wp_create_nonce( 'wc_sf_admin_nonce' ),
-			'i18n'      => [
-				'confirmDelete'    => __( 'Naozaj chcete zmazať tento filter?', 'wc-simple-filter' ),
-				'saving'           => __( 'Ukladám…', 'wc-simple-filter' ),
-				'saved'            => __( 'Uložené', 'wc-simple-filter' ),
-				'error'            => __( 'Chyba. Skúste znova.', 'wc-simple-filter' ),
-				'reindexing'       => __( 'Prebudovávam index…', 'wc-simple-filter' ),
-				'reindexDone'      => __( 'Index prebudovaný.', 'wc-simple-filter' ),
-				'addRangeRow'      => __( 'Pridať rozsah', 'wc-simple-filter' ),
-				'removeRow'        => __( 'Odstrániť', 'wc-simple-filter' ),
+			'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
+			'nonce'       => wp_create_nonce( 'wc_sf_admin_nonce' ),
+			'i18n'        => [
+				'confirmDelete' => __( 'Naozaj chcete zmazať tento filter?', 'wc-simple-filter' ),
+				'saving'        => __( 'Ukladám…', 'wc-simple-filter' ),
+				'saved'         => __( 'Uložené', 'wc-simple-filter' ),
+				'error'         => __( 'Chyba. Skúste znova.', 'wc-simple-filter' ),
+				'reindexing'    => __( 'Prebudovávam index…', 'wc-simple-filter' ),
+				'reindexDone'   => __( 'Index prebudovaný.', 'wc-simple-filter' ),
+				'addRangeRow'   => __( 'Pridať rozsah', 'wc-simple-filter' ),
+				'removeRow'     => __( 'Odstrániť', 'wc-simple-filter' ),
 			],
 			'filterTypes' => $this->get_filter_types_for_js(),
 		] );

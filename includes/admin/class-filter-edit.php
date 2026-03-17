@@ -40,6 +40,38 @@ class Filter_Edit {
 			);
 		}
 
+		$price_range = ( 'price' === $filter['filter_type'] ) ? self::get_price_range() : null;
+
 		include WC_SF_PLUGIN_DIR . 'templates/admin/filter-edit.php';
+	}
+
+	/**
+	 * Vráti min a max cenu publikovaných produktov.
+	 *
+	 * @return array{min: float, max: float}|null  null ak nie sú žiadne produkty.
+	 */
+	private static function get_price_range(): ?array {
+		global $wpdb;
+
+		$row = $wpdb->get_row(
+			"SELECT MIN( CAST( meta_value AS DECIMAL(15,4) ) ) AS min_price,
+			        MAX( CAST( meta_value AS DECIMAL(15,4) ) ) AS max_price
+			 FROM {$wpdb->postmeta} pm
+			 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+			 WHERE pm.meta_key   = '_price'
+			   AND pm.meta_value != ''
+			   AND p.post_type   = 'product'
+			   AND p.post_status = 'publish'",
+			ARRAY_A
+		);
+
+		if ( ! $row || null === $row['min_price'] ) {
+			return null;
+		}
+
+		return [
+			'min' => (float) $row['min_price'],
+			'max' => (float) $row['max_price'],
+		];
 	}
 }

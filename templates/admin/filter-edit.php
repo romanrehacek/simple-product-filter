@@ -27,6 +27,9 @@ $is_status       = 'status' === $filter_type;
 $is_slider       = 'slider' === $filter_style;
 $has_ranges      = isset( $config['ranges'] ) && is_array( $config['ranges'] );
 
+// Pre price s checkbox/radio sekcia ranges je vždy viditeľná.
+$show_ranges = $is_price && ! $is_slider;
+
 $style_labels = [
 	'checkbox'       => __( 'Checkboxy', 'wc-simple-filter' ),
 	'radio'          => __( 'Radio', 'wc-simple-filter' ),
@@ -57,7 +60,7 @@ $back_url = Admin::tab_url();
 
 	<h2><?php esc_html_e( 'Nastavenia filtra', 'wc-simple-filter' ); ?></h2>
 
-	<form id="wc-sf-edit-form" method="post">
+	<form id="wc-sf-edit-form" method="post" data-filter-type="<?php echo esc_attr( $filter_type ); ?>">
 		<input type="hidden" name="id" value="<?php echo esc_attr( $filter['id'] ); ?>" />
 
 		<table class="form-table wc-sf-form-table">
@@ -253,18 +256,34 @@ $back_url = Admin::tab_url();
 			</table>
 		</div>
 
-		<!-- Sekcia: Rozsahy (radio/checkbox s ranges) -->
-		<div class="wc-sf-section wc-sf-section-ranges" style="<?php echo ( $has_ranges && ! $is_slider ? '' : 'display:none;' ); ?>">
-			<h3><?php esc_html_e( 'Rozsahy hodnôt', 'wc-simple-filter' ); ?></h3>
+		<!-- Sekcia: Rozsahy (pre price s checkbox/radio) -->
+		<div class="wc-sf-section wc-sf-section-ranges" style="<?php echo ( $show_ranges ? '' : 'display:none;' ); ?>">
+			<h3><?php esc_html_e( 'Cenové rozsahy', 'wc-simple-filter' ); ?></h3>
+
+			<?php if ( $is_price && ! empty( $price_range ) ) : ?>
 			<p class="description">
-				<?php esc_html_e( 'Definujte cenové alebo číselné rozsahy. Nechajte „Do" prázdne pre neobmedzený horný limit.', 'wc-simple-filter' ); ?>
+				<?php
+				echo wp_kses_post(
+					sprintf(
+						/* translators: %1$s: min cena, %2$s: max cena */
+						__( 'Ceny produktov v eshope: od %1$s do %2$s', 'wc-simple-filter' ),
+						wc_price( $price_range['min'] ),
+						wc_price( $price_range['max'] )
+					)
+				);
+				?>
+			</p>
+			<?php endif; ?>
+
+			<p class="description">
+				<?php esc_html_e( 'Definujte cenové rozsahy. Nechajte „Do" prázdne pre neobmedzený horný limit.', 'wc-simple-filter' ); ?>
 			</p>
 			<table class="wc-sf-ranges-table widefat">
 				<thead>
 					<tr>
 						<th><?php esc_html_e( 'Od', 'wc-simple-filter' ); ?></th>
 						<th><?php esc_html_e( 'Do', 'wc-simple-filter' ); ?></th>
-						<th><?php esc_html_e( 'Popis', 'wc-simple-filter' ); ?></th>
+						<th><?php esc_html_e( 'Popis (voliteľný)', 'wc-simple-filter' ); ?></th>
 						<th></th>
 					</tr>
 				</thead>
@@ -279,6 +298,7 @@ $back_url = Admin::tab_url();
 									value="<?php echo esc_attr( $range['min'] ?? '' ); ?>"
 									class="small-text"
 									step="any"
+									min="0"
 								/>
 							</td>
 							<td>
@@ -288,6 +308,7 @@ $back_url = Admin::tab_url();
 									value="<?php echo esc_attr( $range['max'] ?? '' ); ?>"
 									class="small-text"
 									step="any"
+									min="0"
 									placeholder="∞"
 								/>
 							</td>
@@ -297,6 +318,7 @@ $back_url = Admin::tab_url();
 									name="config[ranges][<?php echo esc_attr( $i ); ?>][label]"
 									value="<?php echo esc_attr( $range['label'] ?? '' ); ?>"
 									class="regular-text"
+									placeholder="<?php esc_attr_e( 'napr. Do 100 €', 'wc-simple-filter' ); ?>"
 								/>
 							</td>
 							<td>
