@@ -204,6 +204,27 @@ $back_url = Admin::tab_url();
 		<!-- Sekcia: Slider -->
 		<div class="wc-sf-section wc-sf-section-slider" style="<?php echo ( $is_slider ? '' : 'display:none;' ); ?>">
 			<h3><?php esc_html_e( 'Nastavenia posuvníka', 'wc-simple-filter' ); ?></h3>
+
+			<?php if ( ! empty( $price_range ) ) : ?>
+			<p class="description">
+				<?php
+				echo wp_kses_post(
+					sprintf(
+						/* translators: %1$s: min cena, %2$s: max cena */
+						__( 'Aktuálne hodnoty v eshope: od %1$s do %2$s', 'wc-simple-filter' ),
+						wc_price( $price_range['min'] ),
+						wc_price( $price_range['max'] )
+					)
+				);
+				?>
+			</p>
+			<?php endif; ?>
+
+			<?php
+			// Ak min/max ešte nie sú uložené v configu, použijeme reálne hodnoty z eshopu ako default.
+			$slider_min_default = isset( $config['min'] ) ? $config['min'] : ( $price_range['min'] ?? 0 );
+			$slider_max_default = isset( $config['max'] ) ? $config['max'] : ( $price_range['max'] ?? 1000 );
+			?>
 			<table class="form-table">
 				<tr>
 					<th scope="row">
@@ -214,7 +235,7 @@ $back_url = Admin::tab_url();
 							type="number"
 							id="wc-sf-slider-min"
 							name="config[min]"
-							value="<?php echo esc_attr( $config['min'] ?? 0 ); ?>"
+							value="<?php echo esc_attr( $slider_min_default ); ?>"
 							class="small-text"
 							step="any"
 						/>
@@ -229,7 +250,7 @@ $back_url = Admin::tab_url();
 							type="number"
 							id="wc-sf-slider-max"
 							name="config[max]"
-							value="<?php echo esc_attr( $config['max'] ?? 1000 ); ?>"
+							value="<?php echo esc_attr( $slider_max_default ); ?>"
 							class="small-text"
 							step="any"
 						/>
