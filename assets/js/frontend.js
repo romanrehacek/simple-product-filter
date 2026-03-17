@@ -6,7 +6,6 @@
  *  2. Horizontal: pill-button open/close of filter dropdown panels.
  *  3. "View more / View less" for checkbox and radio lists.
  *  4. jQuery UI Slider initialisation (display only).
- *  5. Active chips bar demo simulation (horizontal layout, demoChips flag).
  *
  * No form submission or URL manipulation in Phase 2a.
  *
@@ -310,89 +309,6 @@
 	}
 
 	/* =========================================================================
-	   5. Active chips bar — Phase 2a demo simulation
-	   =========================================================================
-	   In Phase 2b this will be driven by real URL/state.
-	   For now: inject a few hardcoded demo chips so the layout can be reviewed.
-	   Demo chips are only injected when the data-demo attribute is present on
-	   the .wcsf element, or when WC_SF_Frontend.demoChips is truthy.
-	   ========================================================================= */
-
-	/**
-	 * Build one chip element.
-	 *
-	 * @param  {string} label      Human-readable chip label.
-	 * @param  {string} filterType Filter type slug.
-	 * @param  {string} value      Value slug.
-	 * @return {HTMLElement}
-	 */
-	function buildChip( label, filterType, value ) {
-		var chip = document.createElement( 'span' );
-		chip.className = 'wcsf__active-chip';
-		chip.setAttribute( 'data-filter-type', filterType );
-		chip.setAttribute( 'data-value', value );
-
-		var labelEl = document.createElement( 'span' );
-		labelEl.className = 'wcsf__active-chip-label';
-		labelEl.textContent = label;
-
-		var removeBtn = document.createElement( 'button' );
-		removeBtn.type = 'button';
-		removeBtn.className = 'wcsf__active-chip-remove';
-		removeBtn.setAttribute( 'aria-label', ( cfg.i18n && cfg.i18n.removeFilter ? cfg.i18n.removeFilter : 'Odstrániť filter' ) + ': ' + label );
-		removeBtn.innerHTML = '<span aria-hidden="true">&times;</span>';
-
-		removeBtn.addEventListener( 'click', function ( e ) {
-			e.stopPropagation();
-			// Capture bar reference before removing chip from DOM.
-			var bar       = chip.closest ? chip.closest( '.wcsf__active-bar' ) : null;
-			var chipsArea = bar ? bar.querySelector( '.wcsf__active-bar-chips' ) : null;
-
-			chip.parentNode && chip.parentNode.removeChild( chip );
-
-			// After removing a chip, hide the bar if no chips left.
-			if ( chipsArea && ! chipsArea.children.length ) {
-				bar.classList.remove( 'wcsf__active-bar--visible' );
-			}
-		} );
-
-		chip.appendChild( labelEl );
-		chip.appendChild( removeBtn );
-		return chip;
-	}
-
-	/**
-	 * Inject demo chips into a horizontal layout's active bar.
-	 * Only runs when WC_SF_Frontend.demoChips === true.
-	 *
-	 * @param {HTMLElement} root  .wcsf--horizontal element.
-	 */
-	function initDemoChips( root ) {
-		if ( ! cfg.demoChips ) {
-			return;
-		}
-
-		var bar       = root.querySelector( '.wcsf__active-bar' );
-		var chipsArea = bar ? bar.querySelector( '.wcsf__active-bar-chips' ) : null;
-
-		if ( ! bar || ! chipsArea ) {
-			return;
-		}
-
-		var demos = [
-			{ label: 'Značka: Nike',   filterType: 'brand',     value: 'nike'    },
-			{ label: 'Farba: Červená', filterType: 'attribute', value: 'cervena' },
-			{ label: 'Výpredaj',       filterType: 'sale',      value: 'sale'    },
-		];
-
-		demos.forEach( function ( demo ) {
-			chipsArea.appendChild( buildChip( demo.label, demo.filterType, demo.value ) );
-		} );
-
-		bar.classList.add( 'wcsf__active-bar--visible' );
-	}
-
-	/* =========================================================================
 	   Boot — wait for DOM ready
 	   ========================================================================= */
 
@@ -410,7 +326,6 @@
 				initSidebar( root );
 			} else if ( layout === 'horizontal' ) {
 				initHorizontal( root );
-				initDemoChips( root );
 			}
 
 			initViewMore( root );

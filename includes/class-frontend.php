@@ -82,13 +82,6 @@ class Frontend {
 			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
 			'nonce'          => wp_create_nonce( 'wc_sf_frontend_nonce' ),
 			'filterMode'     => $settings['filter_mode'] ?? 'ajax',
-			/**
-			 * Demo mode: render three hardcoded chips in the horizontal active-bar
-			 * so the design can be reviewed without real filter state (Phase 2a only).
-			 * Phase 2b will remove this and drive chips from actual URL state.
-			 * For now: always true to show demo chips.
-			 */
-			'demoChips'      => true,
 			'i18n'           => [
 				'viewMore'     => __( 'Zobraziť viac', 'wc-simple-filter' ),
 				'viewLess'     => __( 'Zobraziť menej', 'wc-simple-filter' ),
