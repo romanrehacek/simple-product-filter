@@ -1230,6 +1230,62 @@
 			}
 		} );
 
+		// Radio toggle: clicking an already-checked radio deselects it.
+		// The hidden <input type="radio"> is never the direct click target —
+		// the user clicks <label> or the .wcsf__radio-custom span inside it.
+		// We use mousedown (fires BEFORE the browser updates checked state) to
+		// record which radio was already active, then in the label's click handler
+		// we check against that snapshot. If the same radio was active before the
+		// click we cancel the browser default (stops re-checking) and deselect.
+		// For a different radio we do nothing — browser checks it, 'change' fires.
+		var preClickChecked = null;
+
+		root.addEventListener( 'mousedown', function ( e ) {
+			var label = e.target.closest( 'label.wcsf__radio-label' );
+
+			if ( ! label ) {
+				preClickChecked = null;
+				return;
+			}
+
+			var inputId = label.getAttribute( 'for' );
+			var inp     = inputId ? document.getElementById( inputId ) : null;
+
+			preClickChecked = ( inp && inp.type === 'radio' && inp.checked ) ? inp : null;
+		} );
+
+		root.addEventListener( 'click', function ( e ) {
+			var label = e.target.closest( 'label.wcsf__radio-label' );
+
+			if ( ! label ) {
+				return;
+			}
+
+			var inputId = label.getAttribute( 'for' );
+			var el      = inputId ? document.getElementById( inputId ) : null;
+
+			if ( ! el || el.type !== 'radio' || ! /^wcsf[\[%]/.test( el.name || '' ) ) {
+				return;
+			}
+
+			var mode = root.getAttribute( 'data-filter-mode' ) || cfg.filterMode || 'ajax';
+
+			if ( mode === 'submit' ) {
+				return;
+			}
+
+			if ( preClickChecked === el ) {
+				// This radio was active before the click — deselect it.
+				e.preventDefault();
+				el.checked = false;
+				preClickChecked = null;
+				var newState = collectFilterState( root );
+				setState( root, newState, { dispatch: true, debounce: true, syncInputs: false } );
+			}
+			// Different radio or nothing was checked before — browser handles
+			// the check change and 'change' event fires normally.
+		} );
+
 		// Prevent native form submission in ajax/reload modes.
 		var form = root.querySelector( '.wcsf__form' );
 
