@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: WC Simple Filter
- * Plugin URI:  https://github.com/sjbdigital/wc-simple-filter
+ * Plugin URI:  https://github.com/romanrehacek/wc-simple-filter
  * Description: Configurable product filters for WooCommerce shop. Insert via shortcode [wc_simple_filter] or PHP function wc_simple_filter().
  * Version:     0.1.0
- * Author:      SJB Digital
- * Author URI:  https://sjbdigital.dev
+ * Author:      Roman Rehacek
+ * Author URI:  https://github.com/romanrehacek
  * Text Domain: wc-simple-filter
  * Domain Path: /languages
  * Requires at least: 6.0

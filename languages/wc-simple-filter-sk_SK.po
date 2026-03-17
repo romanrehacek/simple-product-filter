@@ -1,9 +1,9 @@
-# Copyright (C) 2026 SJB Digital
-# This file is distributed under the same license as the WC Simple Filter plugin.
+# Copyright (C) 2026 Roman Rehacek
+# This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
 "Project-Id-Version: WC Simple Filter 0.1.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-simple-filter\n"
+"Report-Msgid-Bugs-To: https://github.com/romanrehacek/wc-simple-filter/issues\n"
 "Last-Translator: Slovak Translation\n"
 "Language-Team: Slovak\n"
 "Language: sk_SK\n"
@@ -14,6 +14,7 @@ msgstr ""
 "PO-Revision-Date: 2026-03-17 21:30+0100\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wc-simple-filter\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #. Plugin Name of the plugin
 #: wc-simple-filter.php
@@ -22,8 +23,8 @@ msgstr "WC Simple Filter"
 
 #. Plugin URI of the plugin
 #: wc-simple-filter.php
-msgid "https://github.com/sjbdigital/wc-simple-filter"
-msgstr "https://github.com/sjbdigital/wc-simple-filter"
+msgid "https://github.com/romanrehacek/wc-simple-filter"
+msgstr "https://github.com/romanrehacek/wc-simple-filter"
 
 #. Description of the plugin
 #: wc-simple-filter.php
@@ -32,13 +33,13 @@ msgstr "Konfigurovateľné filtre produktov pre WooCommerce obchod. Vložte pros
 
 #. Author of the plugin
 #: wc-simple-filter.php
-msgid "SJB Digital"
-msgstr "SJB Digital"
+msgid "Roman Rehacek"
+msgstr "Roman Rehacek"
 
 #. Author URI of the plugin
 #: wc-simple-filter.php
-msgid "https://sjbdigital.dev"
-msgstr "https://sjbdigital.dev"
+msgid "https://github.com/romanrehacek"
+msgstr "https://github.com/romanrehacek"
 
 #: includes/admin/class-admin.php:29
 #: includes/admin/class-admin.php:57

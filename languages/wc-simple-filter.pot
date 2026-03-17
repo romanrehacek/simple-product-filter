@@ -1,9 +1,9 @@
-# Copyright (C) 2026 SJB Digital
-# This file is distributed under the same license as the WC Simple Filter plugin.
+# Copyright (C) 2026 Roman Rehacek
+# This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
 "Project-Id-Version: WC Simple Filter 0.1.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-simple-filter\n"
+"Report-Msgid-Bugs-To: https://github.com/romanrehacek/wc-simple-filter/issues\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #. Plugin URI of the plugin
 #: wc-simple-filter.php
-msgid "https://github.com/sjbdigital/wc-simple-filter"
+msgid "https://github.com/romanrehacek/wc-simple-filter"
 msgstr ""
 
 #. Description of the plugin
@@ -31,12 +31,12 @@ msgstr ""
 
 #. Author of the plugin
 #: wc-simple-filter.php
-msgid "SJB Digital"
+msgid "Roman Rehacek"
 msgstr ""
 
 #. Author URI of the plugin
 #: wc-simple-filter.php
-msgid "https://sjbdigital.dev"
+msgid "https://github.com/romanrehacek"
 msgstr ""
 
 #: includes/admin/class-admin.php:29
