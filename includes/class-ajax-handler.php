@@ -437,10 +437,33 @@ class Ajax_Handler {
 		wp_reset_postdata();
 
 		// Render pagination HTML.
+		// Volávame wc_get_template() priamo namiesto woocommerce_pagination(), pretože
+		// tematická override funkcie woocommerce_pagination() volá woocommerce_products_will_display()
+		// čo vracia false v AJAX kontexte (mimo štandardného WC archive loop) a tým blokuje výstup.
+		// Vždy renderujeme wrapper, aby JS mohol konzistentne nahradiť existujúci element v DOM.
 		ob_start();
 
 		if ( $query->max_num_pages > 1 ) {
-			woocommerce_pagination();
+			$pagination_base = esc_url_raw(
+				str_replace(
+					999999999,
+					'%#%',
+					remove_query_arg( 'add-to-cart', get_pagenum_link( 999999999, false ) )
+				)
+			);
+
+			wc_get_template(
+				'loop/pagination.php',
+				[
+					'total'   => $query->max_num_pages,
+					'current' => $paged,
+					'base'    => $pagination_base,
+					'format'  => '',
+				]
+			);
+		} else {
+			// Prázdny wrapper — zachová element v DOM, JS ho môže nahradiť.
+			echo '<div class="child-category__pagination"></div>';
 		}
 
 		$pagination_html = (string) ob_get_clean();
