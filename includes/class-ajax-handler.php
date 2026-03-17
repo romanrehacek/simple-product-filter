@@ -221,11 +221,15 @@ class Ajax_Handler {
 		}
 
 		if ( 'status' === $filter_type ) {
-			return [
-				[ 'value' => 'instock',     'label' => __( 'Na sklade', 'wc-simple-filter' ) ],
-				[ 'value' => 'outofstock',  'label' => __( 'Vypredané', 'wc-simple-filter' ) ],
-				[ 'value' => 'onbackorder', 'label' => __( 'Na objednávku', 'wc-simple-filter' ) ],
-			];
+			// Načítame všetky registrované stavy vrátane custom (cez woocommerce_product_stock_status_options).
+			$stock_statuses = wc_get_product_stock_status_options();
+			$values         = [];
+
+			foreach ( $stock_statuses as $slug => $label ) {
+				$values[] = [ 'value' => $slug, 'label' => $label ];
+			}
+
+			return $values;
 		}
 
 		if ( 'sale' === $filter_type ) {

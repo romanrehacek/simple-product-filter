@@ -162,12 +162,9 @@ $back_url = Admin::tab_url();
 			</p>
 			<table class="form-table">
 				<?php
-				$status_defaults = [
-					'instock'     => __( 'Na sklade', 'wc-simple-filter' ),
-					'outofstock'  => __( 'Vypredané', 'wc-simple-filter' ),
-					'onbackorder' => __( 'Na objednávku', 'wc-simple-filter' ),
-				];
-				foreach ( $status_defaults as $status_key => $default_label ) :
+				// Načítame všetky registrované stavy vrátane custom (cez woocommerce_product_stock_status_options).
+				$status_options = wc_get_product_stock_status_options();
+				foreach ( $status_options as $status_key => $default_label ) :
 					$enabled = $config['values'][ $status_key ]['enabled'] ?? true;
 					$label   = $config['values'][ $status_key ]['label'] ?? $default_label;
 				?>
