@@ -55,6 +55,7 @@
 	line-height: var(--wcsf-line-height);
 	color:       var(--wcsf-color-text);
 	box-sizing:  border-box;
+	margin-bottom: 1.5rem;
 }
 
 .wcsf *,
@@ -132,7 +133,7 @@
 	position:   absolute;
 	top:        0;
 	left:       0;
-	z-index:    200;
+	z-index:    1000;
 	min-width:  220px;
 	max-width:  340px;
 	background: var(--wcsf-color-bg);
@@ -321,6 +322,7 @@
 	opacity:  0;
 	width:    0;
 	height:   0;
+	pointer-events: auto;
 }
 
 .wcsf__checkbox-custom {
@@ -382,6 +384,7 @@
 	opacity:  0;
 	width:    0;
 	height:   0;
+	pointer-events: auto;
 }
 
 .wcsf__radio-custom {
