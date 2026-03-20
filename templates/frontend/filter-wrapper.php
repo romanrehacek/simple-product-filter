@@ -11,15 +11,15 @@
  *
  * Override: copy to {theme}/simple-product-filter/filter-wrapper.php
  *
- * @package WC_Simple_Filter
+ * @package Simple_Product_Filter
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use WC_Simple_Filter\Shortcode;
-use WC_Simple_Filter\Template;
+use Simple_Product_Filter\Shortcode;
+use Simple_Product_Filter\Template;
 
 $settings    = get_option( 'spf_settings', [] );
 $filter_mode = $settings['filter_mode'] ?? 'ajax';

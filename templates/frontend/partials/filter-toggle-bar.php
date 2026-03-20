@@ -12,7 +12,7 @@
  *
  * Override: copy to {theme}/simple-product-filter/partials/filter-toggle-bar.php
  *
- * @package WC_Simple_Filter
+ * @package Simple_Product_Filter
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

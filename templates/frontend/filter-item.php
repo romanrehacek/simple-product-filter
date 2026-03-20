@@ -11,14 +11,14 @@
  *
  * Override: copy to {theme}/simple-product-filter/filter-item.php
  *
- * @package WC_Simple_Filter
+ * @package Simple_Product_Filter
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use WC_Simple_Filter\Template;
+use Simple_Product_Filter\Template;
 
 $filter_id    = (int) ( $filter['id'] ?? 0 );
 $filter_style = $filter['filter_style'] ?? 'checkbox';

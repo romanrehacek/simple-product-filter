@@ -59,13 +59,13 @@ class Plugin {
 	 * @return void
 	 */
 	private function load_dependencies(): void {
-		require_once WC_SF_PLUGIN_DIR . 'includes/class-filter-manager.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/class-index-manager.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/class-query-builder.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/class-ajax-handler.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/class-template.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/class-shortcode.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/class-frontend.php';
+		require_once SPF_PLUGIN_DIR . 'includes/class-filter-manager.php';
+		require_once SPF_PLUGIN_DIR . 'includes/class-index-manager.php';
+		require_once SPF_PLUGIN_DIR . 'includes/class-query-builder.php';
+		require_once SPF_PLUGIN_DIR . 'includes/class-ajax-handler.php';
+		require_once SPF_PLUGIN_DIR . 'includes/class-template.php';
+		require_once SPF_PLUGIN_DIR . 'includes/class-shortcode.php';
+		require_once SPF_PLUGIN_DIR . 'includes/class-frontend.php';
 		// Admin classes are loaded later — WC_Settings_Page must be available.
 	}
 
@@ -108,11 +108,11 @@ class Plugin {
 	 * @return array<\WC_Settings_Page>
 	 */
 	public function load_admin( array $settings ): array {
-		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-admin.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-filters-tab.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-filter-edit.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-settings-tab.php';
-		require_once WC_SF_PLUGIN_DIR . 'includes/admin/class-help-tab.php';
+		require_once SPF_PLUGIN_DIR . 'includes/admin/class-admin.php';
+		require_once SPF_PLUGIN_DIR . 'includes/admin/class-filters-tab.php';
+		require_once SPF_PLUGIN_DIR . 'includes/admin/class-filter-edit.php';
+		require_once SPF_PLUGIN_DIR . 'includes/admin/class-settings-tab.php';
+		require_once SPF_PLUGIN_DIR . 'includes/admin/class-help-tab.php';
 
 		$settings[] = new Admin\Admin();
 

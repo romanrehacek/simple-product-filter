@@ -4,7 +4,7 @@
  *
  * Override: copy to {theme}/simple-product-filter/partials/reset-button.php
  *
- * @package WC_Simple_Filter
+ * @package Simple_Product_Filter
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

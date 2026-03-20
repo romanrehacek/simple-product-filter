@@ -9,7 +9,7 @@
  *
  * Override: copy to {theme}/simple-product-filter/filter-types/slider.php
  *
- * @package WC_Simple_Filter
+ * @package Simple_Product_Filter
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

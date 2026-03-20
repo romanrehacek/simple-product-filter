@@ -5,14 +5,14 @@
  * Available variables:
  *   $filters  array  List of filters from Filter_Manager::get_all()
  *
- * @package WC_Simple_Filter
+ * @package Simple_Product_Filter
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use WC_Simple_Filter\Admin\Admin;
+use Simple_Product_Filter\Admin\Admin;
 
 $style_labels = [
 	'checkbox'      => __( 'Checkboxes', 'simple-product-filter' ),

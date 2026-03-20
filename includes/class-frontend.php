@@ -175,10 +175,10 @@ class Frontend {
 
 		// Frontend CSS.
 		wp_enqueue_style(
-			'wc-sf-frontend',
-			WC_SF_PLUGIN_URL . 'assets/css/frontend.css',
+			'spf-frontend',
+			SPF_PLUGIN_URL . 'assets/css/frontend.css',
 			[],
-			WC_SF_VERSION
+			SPF_VERSION
 		);
 
 		// jQuery UI Slider (built-in in WP — doesn't need external CDN).
@@ -186,17 +186,17 @@ class Frontend {
 
 		// Frontend JS.
 		wp_enqueue_script(
-			'wc-sf-frontend',
-			WC_SF_PLUGIN_URL . 'assets/js/frontend.js',
+			'spf-frontend',
+			SPF_PLUGIN_URL . 'assets/js/frontend.js',
 			[ 'jquery', 'jquery-ui-slider' ],
-			WC_SF_VERSION,
+			SPF_VERSION,
 			true
 		);
 
 		// Localization of JS data.
 		wp_localize_script(
-			'wc-sf-frontend',
-			'WC_SF_Frontend',
+			'spf-frontend',
+			'spfFrontend',
 			$this->get_js_data()
 		);
 	}

@@ -22,6 +22,6 @@ class Help_Tab {
 	 * @return void
 	 */
 	public function render(): void {
-		include WC_SF_PLUGIN_DIR . 'templates/admin/help-tab.php';
+		include SPF_PLUGIN_DIR . 'templates/admin/help-tab.php';
 	}
 }

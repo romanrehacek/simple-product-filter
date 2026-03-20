@@ -25,6 +25,6 @@ class Filters_Tab {
 	 */
 	public function render(): void {
 		$filters = Filter_Manager::get_all();
-		include WC_SF_PLUGIN_DIR . 'templates/admin/filters-tab.php';
+		include SPF_PLUGIN_DIR . 'templates/admin/filters-tab.php';
 	}
 }

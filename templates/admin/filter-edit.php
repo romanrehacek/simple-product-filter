@@ -5,14 +5,14 @@
  * Available variables:
  *   $filter  array  Filter data from Filter_Manager::get()
  *
- * @package WC_Simple_Filter
+ * @package Simple_Product_Filter
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use WC_Simple_Filter\Admin\Admin;
+use Simple_Product_Filter\Admin\Admin;
 
 $config       = $filter['config'] ?? [];
 $filter_type  = $filter['filter_type'] ?? '';

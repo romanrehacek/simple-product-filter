@@ -58,7 +58,7 @@ class Template {
 
 		// Fallback to plugin template.
 		if ( ! $template ) {
-			$plugin_template = WC_SF_PLUGIN_DIR . self::PLUGIN_DIR . $template_name;
+			$plugin_template = SPF_PLUGIN_DIR . self::PLUGIN_DIR . $template_name;
 			if ( file_exists( $plugin_template ) ) {
 				$template = $plugin_template;
 			}
@@ -138,6 +138,6 @@ class Template {
 	 * @return string URL of the plugin template directory.
 	 */
 	public static function get_plugin_template_dir_url(): string {
-		return WC_SF_PLUGIN_URL . self::PLUGIN_DIR;
+		return SPF_PLUGIN_URL . self::PLUGIN_DIR;
 	}
 }

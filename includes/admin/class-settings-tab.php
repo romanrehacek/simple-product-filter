@@ -27,7 +27,7 @@ class Settings_Tab {
 	public function render(): void {
 		$settings   = get_option( 'spf_settings', Filter_Manager::default_settings() );
 		$index_time = $this->get_last_index_time();
-		include WC_SF_PLUGIN_DIR . 'templates/admin/settings-tab.php';
+		include SPF_PLUGIN_DIR . 'templates/admin/settings-tab.php';
 	}
 
 	/**

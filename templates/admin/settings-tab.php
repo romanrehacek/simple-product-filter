@@ -6,7 +6,7 @@
  *   $settings    array        Settings from wp_options (spf_settings)
  *   $index_time  string|null  Time of the last index rebuild
  *
- * @package WC_Simple_Filter
+ * @package Simple_Product_Filter
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

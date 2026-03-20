@@ -166,21 +166,21 @@ class Admin extends \WC_Settings_Page {
 		}
 
 		wp_enqueue_style(
-			'wc-sf-admin',
-			WC_SF_PLUGIN_URL . 'assets/css/admin.css',
+			'spf-admin',
+			SPF_PLUGIN_URL . 'assets/css/admin.css',
 			[],
-			WC_SF_VERSION
+			SPF_VERSION
 		);
 
 		wp_enqueue_script(
-			'wc-sf-admin',
-			WC_SF_PLUGIN_URL . 'assets/js/admin.js',
+			'spf-admin',
+			SPF_PLUGIN_URL . 'assets/js/admin.js',
 			[ 'jquery', 'jquery-ui-sortable' ],
-			WC_SF_VERSION,
+			SPF_VERSION,
 			true
 		);
 
-		wp_localize_script( 'wc-sf-admin', 'wcSfAdmin', [
+		wp_localize_script( 'spf-admin', 'spfAdmin', [
 			'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
 			'nonce'       => wp_create_nonce( 'spf_admin_nonce' ),
 			'i18n'        => [

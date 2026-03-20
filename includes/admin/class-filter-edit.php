@@ -43,7 +43,7 @@ class Filter_Edit {
 		$price_range      = ( 'price' === $filter['filter_type'] ) ? self::get_price_range() : null;
 		$available_values = self::load_available_values( $filter['filter_type'] );
 
-		include WC_SF_PLUGIN_DIR . 'templates/admin/filter-edit.php';
+		include SPF_PLUGIN_DIR . 'templates/admin/filter-edit.php';
 	}
 
 	/**

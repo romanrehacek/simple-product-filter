@@ -60,7 +60,7 @@ class Filter_Manager {
 		dbDelta( $sql );
 
 		// Create index table.
-		require_once WC_SF_PLUGIN_DIR . 'includes/class-index-manager.php';
+		require_once SPF_PLUGIN_DIR . 'includes/class-index-manager.php';
 		Index_Manager::install();
 
 		// Store schema version.
