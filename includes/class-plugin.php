@@ -120,15 +120,13 @@ class Plugin {
 	}
 
 	/**
-	 * Loads the plugin translation file.
+	 * Placeholder i18n callback kept for init hook compatibility.
+	 * WordPress.org language packs are loaded automatically.
 	 *
 	 * @return void
 	 */
 	public function load_textdomain(): void {
-		load_plugin_textdomain(
-			'wc-simple-filter',
-			false,
-			dirname( WC_SF_PLUGIN_BASENAME ) . '/languages'
-		);
+		// Intentionally left blank.
 	}
+
 }

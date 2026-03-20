@@ -24,6 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<span class="wcsf__active-chip-label"><?php echo esc_html( $label ?? '' ); ?></span>
 	<button type="button"
 			class="wcsf__active-chip-remove"
+			<?php /* translators: %s: active filter label. */ ?>
 			aria-label="<?php echo esc_attr( sprintf( __( 'Remove filter: %s', 'wc-simple-filter' ), $label ?? '' ) ); ?>">
 		<span aria-hidden="true">&times;</span>
 	</button>

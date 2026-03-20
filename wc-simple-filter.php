@@ -13,6 +13,8 @@
  * Requires Plugins: woocommerce
  * WC requires at least: 7.0
  * WC tested up to:      9.x
+ * License:     GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  *
  * @package WC_Simple_Filter
  */

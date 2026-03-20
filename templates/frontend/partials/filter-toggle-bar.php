@@ -32,10 +32,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				aria-expanded="false"
 				aria-controls="<?php echo esc_attr( $target_id ); ?>"
 				data-filter-id="<?php echo esc_attr( $filter_id ); ?>"
-				data-filter-type="<?php echo $filter_type; ?>">
-			<span class="wcsf__toggle-pill-label"><?php echo $label; ?></span>
+				data-filter-type="<?php echo esc_attr( $filter_type ); ?>">
+			<span class="wcsf__toggle-pill-label"><?php echo esc_html( $label ); ?></span>
 			<span class="wcsf__toggle-pill-icon" aria-hidden="true"></span>
 		</button>
 	<?php endforeach; ?>
 </div>
-

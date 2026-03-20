@@ -3,13 +3,13 @@ Contributors: romanrehacek
 Donate link:
 Tags: woocommerce, product filter, ajax filter, filter products, woo commerce
 Requires at least: 6.0
-Tested up to: 6.4
+Tested up to: 6.9
 Requires PHP: 8.0
 Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A lightweight, configurable product filter plugin for WooCommerce shops and product archives. Create and manage custom filters without modifying products.
+Lightweight WooCommerce product filters with easy setup and flexible filter types.
 
 == Description ==
 
