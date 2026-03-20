@@ -334,31 +334,17 @@
 	   5. Záložka Nastavenia — uloženie
 	   ========================================================= */
 
-	$( '#wc-sf-settings-form' ).on( 'submit', function ( e ) {
-		e.preventDefault();
-
-		var $btn     = $( '#wc-sf-save-settings-btn' );
+	$( '#wc-sf-save-settings-btn' ).on( 'click', function () {
+		var $btn     = $( this );
 		var $spinner = $btn.siblings( '.wc-sf-spinner' );
 		var $msg     = $btn.siblings( '.wc-sf-msg' );
-		var data     = $( this ).serializeArray();
 
 		showMsg( $msg, i18n.saving, '' );
 		toggleSpinner( $spinner, true );
 		$btn.prop( 'disabled', true );
 
-		// Pridaj action a nonce.
-		var postData = { action: 'wc_sf_save_settings', nonce: nonce };
-		
-		// Spracuj dáta na vytvorenie vnoreného objektu settings{...}
-		var settings = {};
-		data.forEach( function ( item ) {
-			// Parsuj "settings[key]" → settings.key = value
-			var match = item.name.match( /^settings\[([^\]]+)\]$/ );
-			if ( match ) {
-				settings[ match[1] ] = item.value;
-			}
-		} );
-		postData.settings = settings;
+		// Serializuj všetky inputy v settings div-e a pridaj action + nonce.
+		var postData = $( '#wc-sf-settings-form :input' ).serialize() + '&action=wc_sf_save_settings&nonce=' + encodeURIComponent( nonce );
 
 		$.post( ajax, postData )
 		.done( function ( response ) {

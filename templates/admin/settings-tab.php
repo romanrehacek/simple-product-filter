@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <div class="wc-sf-wrap">
 
-	<form id="wc-sf-settings-form" method="post">
+	<div id="wc-sf-settings-form">
 
 	<table class="form-table wc-sf-form-table">
 
@@ -145,14 +145,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</table>
 
 	<p class="submit">
-		<button type="submit" id="wc-sf-save-settings-btn" class="button button-primary">
+		<button type="button" id="wc-sf-save-settings-btn" class="button button-primary">
 			<?php esc_html_e( 'Save settings', 'wc-simple-filter' ); ?>
 		</button>
 		<span class="wc-sf-spinner spinner"></span>
 		<span class="wc-sf-msg"></span>
 	</p>
 
-</form>
+</div>
 
 <hr />
 
